@@ -54,6 +54,7 @@
 #include <QTimer>
 #include <QToolBar>
 #include <QVBoxLayout>
+#include <QShortcut>
 
 EventView::EventView(QWidget *parent)
     : QDialog(parent)
@@ -163,6 +164,10 @@ EventView::EventView(QWidget *parent)
 
     // I hate doing this but the stupid default view sizeHints suck badly.
     setMinimumHeight(200);
+
+#ifdef Q_OS_LINUX
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_W), this, SLOT(close()));
+#endif
 }
 
 EventView::~EventView()

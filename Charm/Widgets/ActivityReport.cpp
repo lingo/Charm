@@ -26,6 +26,7 @@
 #include "DateEntrySyncer.h"
 #include "Data.h"
 #include "SelectTaskDialog.h"
+#include "ActivityReportTemplater.h"
 
 #include "Core/Configuration.h"
 #include "Core/Dates.h"
@@ -252,24 +253,25 @@ void ActivityReport::setReportProperties(
     slotUpdate();
 }
 
-void ActivityReport::slotUpdate()
+EventIdList ActivityReport::getMatchingEvents(
+    const ActivityReportConfigurationDialog::Properties &properties)
 {
     // retrieve matching events:
-    EventIdList matchingEvents = DATAMODEL->eventsThatStartInTimeFrame(m_properties.start,
-                                                                       m_properties.end);
+    EventIdList matchingEvents = DATAMODEL->eventsThatStartInTimeFrame(properties.start,
+                                                                       properties.end);
 
-    if (!m_properties.rootTasks.isEmpty()) {
+    if (!properties.rootTasks.isEmpty()) {
         QSet<EventId> filteredEvents;
-        Q_FOREACH (TaskId include, m_properties.rootTasks)
+        Q_FOREACH (TaskId include, properties.rootTasks)
             filteredEvents |= Charm::filteredBySubtree(matchingEvents, include).toSet();
         matchingEvents = filteredEvents.toList();
     }
 
-    if (m_properties.groupByTaskId) {
+    if (properties.groupByTaskId) {
         matchingEvents = Charm::eventIdsSortedBy(matchingEvents,
                                                  Charm::SortOrderList() << Charm::SortOrder::TaskId
                                                                         << Charm::SortOrder::StartTime);
-    } else if (m_properties.groupByTaskIdAndComments) {
+    } else if (properties.groupByTaskIdAndComments) {
         matchingEvents = Charm::eventIdsSortedBy(matchingEvents,
                                                  Charm::SortOrderList() << Charm::SortOrder::TaskId
                                                                         << Charm::SortOrder::Comment
@@ -281,38 +283,58 @@ void ActivityReport::slotUpdate()
     }
 
     // filter unproductive events:
-    Q_FOREACH (TaskId exclude, m_properties.rootExcludeTasks)
+    Q_FOREACH (TaskId exclude, properties.rootExcludeTasks)
         matchingEvents = Charm::filteredBySubtree(matchingEvents, exclude, true);
 
+    return matchingEvents;
+}
+
+int ActivityReport::calculateTotalSeconds(const EventIdList &events)
+{
     // calculate total:
     int totalSeconds = 0;
-    Q_FOREACH (EventId id, matchingEvents) {
+    Q_FOREACH (EventId id, events) {
         const Event &event = DATAMODEL->eventForId(id);
         Q_ASSERT(event.isValid());
         totalSeconds += event.duration();
     }
+    return totalSeconds;
+}
+
+
+const QString ActivityReport::getTimeSpanType()
+{
 
     // which TimeSpan type
-    QString timeSpanTypeName;
     switch (m_properties.timeSpanSelection.timeSpanType) {
     case Day:
-        timeSpanTypeName = tr("Day");
-        break;
+        return tr("Day");
     case Week:
-        timeSpanTypeName = tr("Week");
-        break;
+        return tr("Week");
     case Month:
-        timeSpanTypeName = tr("Month");
-        break;
+        return tr("Month");
     case Year:
-        timeSpanTypeName = tr("Year");
-        break;
+        return tr("Year");
     case Range:
-        timeSpanTypeName = tr("Range");
-        break;
+        return tr("Range");
     default:
         Q_ASSERT(false);   // should not happen
     }
+}
+
+/*const QString & ActivityReport::generateReportHTML()
+{
+    ActivityReportTemplater * templater = new ActivityReportTemplater();
+    Grantlee::Template  template        = templater->loadTemplate("activityreport.html.tpl");
+    return template->populate();
+}
+*/
+void ActivityReport::slotUpdate()
+{
+
+    const EventIdList & matchingEvents = getMatchingEvents(m_properties);
+    int totalSeconds                   = calculateTotalSeconds(matchingEvents);
+    const QString & timeSpanTypeName   = getTimeSpanType();
 
     auto report = new QTextDocument(this);
     QDomDocument doc = createReportTemplate();

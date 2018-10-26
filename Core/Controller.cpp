@@ -226,8 +226,6 @@ void Controller::persistMetaData(Configuration &configuration)
           QString::number(configuration.durationFormat) },
         { MetaKey_Key_IdleDetection,
           stringForBool(configuration.detectIdling) },
-        { MetaKey_Key_WarnUnuploadedTimesheets,
-          stringForBool(configuration.warnUnuploadedTimesheets) },
         { MetaKey_Key_RequestEventComment,
           stringForBool(configuration.requestEventComment) },
         { MetaKey_Key_ToolButtonStyle,
@@ -263,11 +261,12 @@ void Controller::provideMetaData(Configuration &configuration)
     Q_ASSERT_X(m_storage != nullptr, Q_FUNC_INFO, "No storage interface available");
     configuration.user.setName(m_storage->getMetaData(MetaKey_Key_UserName));
 
+    loadConfigValue(MetaKey_Key_TimeTrackerFont, configuration.timeTrackerFont);
+    loadConfigValue(MetaKey_Key_EventWindowFont, configuration.eventWindowFont);
     loadConfigValue(MetaKey_Key_TimeTrackerFontSize, configuration.timeTrackerFontSize);
     loadConfigValue(MetaKey_Key_DurationFormat, configuration.durationFormat);
     loadConfigValue(MetaKey_Key_SubscribedTasksOnly, configuration.taskPrefilteringMode);
     loadConfigValue(MetaKey_Key_IdleDetection, configuration.detectIdling);
-    loadConfigValue(MetaKey_Key_WarnUnuploadedTimesheets, configuration.warnUnuploadedTimesheets);
     loadConfigValue(MetaKey_Key_RequestEventComment, configuration.requestEventComment);
     loadConfigValue(MetaKey_Key_ToolButtonStyle, configuration.toolButtonStyle);
     loadConfigValue(MetaKey_Key_ShowStatusBar, configuration.showStatusBar);

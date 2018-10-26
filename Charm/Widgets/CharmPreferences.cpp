@@ -41,23 +41,16 @@ CharmPreferences::CharmPreferences(const Configuration &config, QWidget *parent_
     m_ui.setupUi(this);
     const bool haveIdleDetection = ApplicationCore::instance().idleDetector()->available();
     const bool haveCommandInterface = (ApplicationCore::instance().commandInterface() != nullptr);
-    const bool httpJobPossible = Lotsofcake::Configuration().isConfigured();
 
-    m_ui.lbWarnUnuploadedTimesheets->setVisible(httpJobPossible);
-    m_ui.cbWarnUnuploadedTimesheets->setVisible(httpJobPossible);
     m_ui.cbIdleDetection->setEnabled(haveIdleDetection);
     m_ui.lbIdleDetection->setEnabled(haveIdleDetection);
     m_ui.cbIdleDetection->setChecked(config.detectIdling && m_ui.cbIdleDetection->isEnabled());
-    m_ui.cbWarnUnuploadedTimesheets->setChecked(config.warnUnuploadedTimesheets);
     m_ui.cbRequestEventComment->setChecked(config.requestEventComment);
     m_ui.lbCommandInterface->setVisible(haveCommandInterface);
     m_ui.cbEnableCommandInterface->setEnabled(haveCommandInterface);
     m_ui.cbEnableCommandInterface->setVisible(haveCommandInterface);
     m_ui.cbEnableCommandInterface->setChecked(haveCommandInterface
                                               && config.enableCommandInterface);
-
-    connect(m_ui.cbWarnUnuploadedTimesheets, &QCheckBox::toggled,
-            this, &CharmPreferences::slotWarnUnuploadedChanged);
 
     // this would not need a switch, but i hate casting enums to int:
     switch (config.timeTrackerFontSize) {
@@ -113,11 +106,6 @@ bool CharmPreferences::detectIdling() const
     return m_ui.cbIdleDetection->isChecked();
 }
 
-bool CharmPreferences::warnUnuploadedTimesheets() const
-{
-    return m_ui.cbWarnUnuploadedTimesheets->isChecked();
-}
-
 bool CharmPreferences::requestEventComment() const
 {
     return m_ui.cbRequestEventComment->isChecked();
@@ -165,6 +153,16 @@ Configuration::TimeTrackerFontSize CharmPreferences::timeTrackerFontSize() const
     return Configuration::TimeTrackerFont_Regular;
 }
 
+const QString & CharmPreferences::timeTrackerFont() const
+{
+    return m_ui.edTimeTrackerFont->text();
+}
+
+const QString & CharmPreferences::eventWindowFont() const
+{
+    return m_ui.edEventWindowFont->text();
+}
+
 Qt::ToolButtonStyle CharmPreferences::toolButtonStyle() const
 {
     switch (m_ui.cbToolButtonStyle->currentIndex()) {
@@ -190,20 +188,3 @@ Qt::ToolButtonStyle CharmPreferences::toolButtonStyle() const
     return Qt::ToolButtonIconOnly;
 }
 
-void CharmPreferences::slotWarnUnuploadedChanged(bool enabled)
-{
-    if (!Lotsofcake::Configuration().isConfigured())
-        return;
-
-    if (!enabled) {
-        const int response = MessageBox::question(this,
-                                                  tr("Bill is sad :(."),
-                                                  tr(
-                                                      "Bill has always been misunderstood. All he really wants is your reports, and even when he doesn't get them you only have to evade him once per hour. I'm sure you want to keep Bill's gentle reminders?"),
-                                                  tr("Mmmmkay"),
-                                                  tr("No, Stop Bill"),
-                                                  QMessageBox::Yes);
-        if (response == QMessageBox::Yes)
-            m_ui.cbWarnUnuploadedTimesheets->setCheckState(Qt::Checked);
-    }
-}

@@ -80,7 +80,6 @@
 TimeTrackingWindow::TimeTrackingWindow(QWidget *parent)
     : CharmWindow(tr("Time Tracker"), parent)
     , m_summaryWidget(new TimeTrackingView(this))
-    , m_billDialog(nullptr)
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setWindowNumber(3);
@@ -92,24 +91,11 @@ TimeTrackingWindow::TimeTrackingWindow(QWidget *parent)
             this, &TimeTrackingWindow::slotStopEvent);
     connect(m_summaryWidget, &TimeTrackingView::taskMenuChanged,
             this, &TimeTrackingWindow::taskMenuChanged);
-    connect(&m_checkUploadedSheetsTimer, &QTimer::timeout,
-            this, &TimeTrackingWindow::slotCheckUploadedTimesheets);
     connect(&m_checkCharmReleaseVersionTimer, &QTimer::timeout,
             this, &TimeTrackingWindow::slotCheckForUpdatesAutomatic);
     connect(&m_updateUserInfoAndTasksDefinitionsTimer, &QTimer::timeout,
             this, &TimeTrackingWindow::slotGetUserInfo);
 
-    //Check every 60 minutes if there are timesheets due
-    if (CONFIGURATION.warnUnuploadedTimesheets)
-        m_checkUploadedSheetsTimer.start();
-    m_checkUploadedSheetsTimer.setInterval(60 * 60 * 1000);
-#if defined(Q_OS_OSX) || defined(Q_OS_WIN)
-    m_checkCharmReleaseVersionTimer.setInterval(24 * 60 * 60 * 1000);
-    if (!CharmUpdateCheckUrl().isEmpty()) {
-        QTimer::singleShot(1000, this, SLOT(slotCheckForUpdatesAutomatic()));
-        m_checkCharmReleaseVersionTimer.start();
-    }
-#endif
     //Update tasks definitions once every 24h
     m_updateUserInfoAndTasksDefinitionsTimer.setInterval(24 * 60 * 60 * 1000);
     QTimer::singleShot(1000, this, SLOT(slotSyncTasksAutomatic()));
@@ -247,11 +233,6 @@ void TimeTrackingWindow::eventDeactivated(EventId id)
 
 void TimeTrackingWindow::configurationChanged()
 {
-    if (CONFIGURATION.warnUnuploadedTimesheets) {
-        m_checkUploadedSheetsTimer.start();
-    } else {
-        m_checkUploadedSheetsTimer.stop();
-    }
     m_summaryWidget->configurationChanged();
     CharmWindow::configurationChanged();
 }
@@ -303,13 +284,14 @@ void TimeTrackingWindow::slotEditPreferences(bool)
     CharmPreferences dialog(CONFIGURATION, this);
 
     if (dialog.exec()) {
-        CONFIGURATION.timeTrackerFontSize = dialog.timeTrackerFontSize();
-        CONFIGURATION.durationFormat = dialog.durationFormat();
-        CONFIGURATION.toolButtonStyle = dialog.toolButtonStyle();
-        CONFIGURATION.detectIdling = dialog.detectIdling();
-        CONFIGURATION.warnUnuploadedTimesheets = dialog.warnUnuploadedTimesheets();
-        CONFIGURATION.requestEventComment = dialog.requestEventComment();
-        CONFIGURATION.enableCommandInterface = dialog.enableCommandInterface();
+        CONFIGURATION.timeTrackerFontSize         = dialog.timeTrackerFontSize();
+        CONFIGURATION.timeTrackerFont             = dialog.timeTrackerFont();
+        CONFIGURATION.eventWindowFont             = dialog.eventWindowFont();
+        CONFIGURATION.durationFormat              = dialog.durationFormat();
+        CONFIGURATION.toolButtonStyle             = dialog.toolButtonStyle();
+        CONFIGURATION.detectIdling                = dialog.detectIdling();
+        CONFIGURATION.requestEventComment         = dialog.requestEventComment();
+        CONFIGURATION.enableCommandInterface      = dialog.enableCommandInterface();
         CONFIGURATION.numberOfTaskSelectorEntries = dialog.numberOfTaskSelectorEntries();
         emit saveConfiguration();
     }
@@ -549,47 +531,6 @@ void TimeTrackingWindow::slotExportTasks()
         QMessageBox::critical(this, tr("Error during export"), message);
         return;
     }
-}
-
-void TimeTrackingWindow::slotCheckUploadedTimesheets()
-{
-    WeeksByYear missing = missingTimeSheets();
-    if (missing.isEmpty())
-        return;
-    m_checkUploadedSheetsTimer.stop();
-    //The usual case is just one missing week, unless we've been giving Bill a hard time
-    //Perhaps in the future Bill can bug us about more than one report at a time
-    Q_ASSERT(!missing.begin().value().isEmpty());
-    int year = missing.begin().key();
-    int week = missing.begin().value().first();
-    delete m_billDialog;
-    m_billDialog = new BillDialog(this);
-    connect(m_billDialog, &BillDialog::finished,
-            this, &TimeTrackingWindow::slotBillGone);
-    m_billDialog->setReport(year, week);
-    m_billDialog->show();
-    m_billDialog->raise();
-    m_billDialog->activateWindow();
-}
-
-void TimeTrackingWindow::slotBillGone(int result)
-{
-    switch (result) {
-    case BillDialog::AlreadyDone:
-        addUploadedTimesheet(m_billDialog->year(), m_billDialog->week());
-        break;
-    case BillDialog::AsYouWish:
-        resetWeeklyTimesheetDialog();
-        m_weeklyTimesheetDialog->setDefaultWeek(m_billDialog->year(), m_billDialog->week());
-        m_weeklyTimesheetDialog->open();
-        break;
-    case BillDialog::Later:
-        break;
-    }
-    if (CONFIGURATION.warnUnuploadedTimesheets)
-        m_checkUploadedSheetsTimer.start();
-    m_billDialog->deleteLater();
-    m_billDialog = nullptr;
 }
 
 void TimeTrackingWindow::slotCheckForUpdatesAutomatic()

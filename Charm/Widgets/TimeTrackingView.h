@@ -113,6 +113,7 @@ private:
     mutable QRect m_cachedTotalsFieldRect;
     mutable QRect m_cachedDayFieldRect;
     mutable QFont m_fixedFont;
+    mutable QString m_fontName;
     mutable QFont m_narrowFont;
     TimeTrackingTaskSelector *m_taskSelector;
     QList<QRect> m_activeFieldRects;

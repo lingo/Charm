@@ -32,7 +32,6 @@
 
 #include "CharmWindow.h"
 #include "Charm/WeeklySummary.h"
-#include "BillDialog.h"
 
 class HttpJob;
 class CheckForUpdatesJob;
@@ -109,8 +108,6 @@ private Q_SLOTS:
     void slotWeeklyTimesheetPreview(int result);
     void slotMonthlyTimesheetPreview(int result);
     void slotActivityReportPreview(int result);
-    void slotCheckUploadedTimesheets();
-    void slotBillGone(int result);
     void slotCheckForUpdatesAutomatic();
     void slotCheckForUpdates(CheckForUpdatesJob::JobData);
     void slotSyncTasksAutomatic();
@@ -140,10 +137,8 @@ private:
     ActivityReportConfigurationDialog *m_activityReportDialog = nullptr;
     TimeTrackingView *m_summaryWidget;
     QVector<WeeklySummary> m_summaries;
-    QTimer m_checkUploadedSheetsTimer;
     QTimer m_checkCharmReleaseVersionTimer;
     QTimer m_updateUserInfoAndTasksDefinitionsTimer;
-    BillDialog *m_billDialog;
     bool m_idleCorrectionDialogVisible = false;
     bool m_uploadingStagedTimesheet = false;
 };

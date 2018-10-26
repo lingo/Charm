@@ -52,7 +52,7 @@ QSize EventEditorDelegate::sizeHint(const QStyleOptionViewItem &option,
         QPixmap pixmap(option.rect.size());   // temp
         QPainter painter(&pixmap);
         m_cachedSizeHint = paint(&painter, option,
-                                 taskName(item),
+                                 taskName(item, event),
                                  dateAndDuration(event),
                                  42, EventState_Locked).size();
     }
@@ -70,21 +70,23 @@ void EventEditorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         bool locked = DATAMODEL->isEventActive(event.id());
 
         paint(painter, option,
-              taskName(item),
+              taskName(item, event),
               dateAndDuration(event),
               logDuration(event.duration()),
               locked ? EventState_Locked : EventState_Default);
     }
 }
 
-QString EventEditorDelegate::taskName(const TaskTreeItem &item) const
+QString EventEditorDelegate::taskName(const TaskTreeItem &item, const Event &event) const
 {
     QString taskName;
     QTextStream taskStream(&taskName);
     // print leading zeroes for the TaskId
     const int taskIdLength = CONFIGURATION.taskPaddingLength;
     taskStream << QStringLiteral("%1").arg(item.task().id(), taskIdLength, 10, QLatin1Char('0'))
-               << " " << DATAMODEL->smartTaskName(item.task());
+               << " " << DATAMODEL->smartTaskName(item.task())
+               << " (" << hoursAndMinutes(event.duration()) << ")";
+
     return taskName;
 }
 
@@ -172,7 +174,7 @@ QRect EventEditorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 
     // draw the duration line:
     const int Margin = 2;
-    QRect durationRect(option.rect.left() + 1, detailsRect.bottom(),
+    QRect durationRect(option.rect.right() - 1, detailsRect.bottom(),
                        static_cast<int>(logDuration * (option.rect.width() - 2)), Margin);
     painter->fillRect(durationRect, palette.dark());
 

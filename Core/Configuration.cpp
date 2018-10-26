@@ -47,12 +47,16 @@ Configuration::Configuration()
 }
 
 Configuration::Configuration(TaskPrefilteringMode _taskPrefilteringMode,
+                             const QString & _eventWindowFont,
+                             const QString & _timeTrackerFont,
                              TimeTrackerFontSize _timeTrackerFontSize,
                              DurationFormat _durationFormat, bool _detectIdling,
                              Qt::ToolButtonStyle _buttonstyle, bool _showStatusBar,
                              bool _warnUnuploadedTimesheets, bool _requestEventComment,
                              bool _enableCommandInterface, int _numberOfTaskSelectorEntries)
     : taskPrefilteringMode(_taskPrefilteringMode)
+    , eventWindowFont(_eventWindowFont)
+    , timeTrackerFont(_timeTrackerFont)
     , timeTrackerFontSize(_timeTrackerFontSize)
     , durationFormat(_durationFormat)
     , toolButtonStyle(_buttonstyle)
@@ -70,6 +74,8 @@ bool Configuration::operator==(const Configuration &other) const
 {
     return user == other.user
            && taskPrefilteringMode == other.taskPrefilteringMode
+           && eventWindowFont == other.eventWindowFont
+           && timeTrackerFont == other.timeTrackerFont
            && timeTrackerFontSize == other.timeTrackerFontSize
            && durationFormat == other.durationFormat
            && detectIdling == other.detectIdling

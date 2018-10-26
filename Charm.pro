@@ -43,6 +43,7 @@ SOURCES += \
     Charm/HttpClient/GetProjectCodesJob.cpp \
     Charm/HttpClient/UploadTimesheetJob.cpp \
     Charm/Idle/IdleDetector.cpp \
+    Charm/Idle/X11IdleDetector.cpp \
     Charm/Reports/MonthlyTimesheetXmlWriter.cpp \
     Charm/Reports/TimesheetInfo.cpp \
     Charm/Reports/WeeklyTimesheetXmlWriter.cpp \
@@ -90,6 +91,7 @@ HEADERS += \
     Charm/EventModelAdapter.h \
     Charm/EventModelFilter.h \
     Charm/Idle/IdleDetector.h \
+    Charm/Idle/X11IdleDetector.h \
     Charm/Uniquifier.h \
     Charm/ViewModeInterface.h \
     Charm/GUIState.h \

@@ -265,6 +265,11 @@ void TimeTrackingView::data(DataField &field, int column, int row) const
     const int Day = column - 1;
 
     field.font = m_fixedFont;
+    QString fontName = QString.fromUtf8("font-family: ")
+        .append(m_fontName)
+        .append(";");
+    field.setStyleSheet(fontName);
+
     if (row == HeaderRow) {
         field.font = m_narrowFont;
         if (column == TaskColumn) {
@@ -360,9 +365,11 @@ void TimeTrackingView::configurationChanged()
 {
     m_fixedFont = font();
 #ifdef Q_OS_OSX
-    m_fixedFont.setFamily(QStringLiteral("Andale Mono"));
+    m_fixedFont.setFamily(CONFIGURATION.TimeTrackerFont);
     m_fixedFont.setPointSize(11);
 #endif
+
+    m_fontName = CONFIGURATION.timeTrackerFont;
 
     switch (CONFIGURATION.timeTrackerFontSize) {
     case Configuration::TimeTrackerFont_Small:

@@ -52,6 +52,7 @@
 #include <QSettings>
 #include <QToolBar>
 #include <QTreeView>
+#include <QShortcut>
 
 TasksView::TasksView(QWidget *parent)
     : QDialog(parent)
@@ -153,6 +154,10 @@ TasksView::TasksView(QWidget *parent)
 
     // A reasonable default depth.
     m_treeView->expandToDepth(0);
+
+#ifdef Q_OS_LINUX
+    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_W), this, SLOT(close()));
+#endif
 }
 
 TasksView::~TasksView()

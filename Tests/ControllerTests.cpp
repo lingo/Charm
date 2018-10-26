@@ -79,14 +79,20 @@ void ControllerTests::initializeConnectBackendTest()
 void ControllerTests:: persistProvideMetaDataTest()
 {
     Configuration configs[] = {
-        Configuration(Configuration::TaskPrefilter_ShowAll, Configuration::TimeTrackerFont_Small,
+        Configuration(Configuration::TaskPrefilter_ShowAll,
+            QString::fromUtf8("Inconsolable"), QString::fromUtf8("Inconsolable"),
+                        Configuration::TimeTrackerFont_Small,
                       Configuration::Minutes, true, Qt::ToolButtonIconOnly, true, true, true,
                       false, 5),
         Configuration(Configuration::TaskPrefilter_CurrentOnly,
+            QString::fromUtf8("Inconsolable"),
+            QString::fromUtf8("Inconsolable"),
                       Configuration::TimeTrackerFont_Regular,
                       Configuration::Minutes, false, Qt::ToolButtonTextOnly, false, false, false,
                       false, 5),
         Configuration(Configuration::TaskPrefilter_SubscribedAndCurrentOnly,
+            QString::fromUtf8("Inconsolable"),
+            QString::fromUtf8("Inconsolable"),
                       Configuration::TimeTrackerFont_Large,
                       Configuration::Minutes, true, Qt::ToolButtonTextBesideIcon, true, true, true,
                       false, 5),

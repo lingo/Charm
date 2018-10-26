@@ -100,7 +100,13 @@ private Q_SLOTS:
     void slotLinkClicked(const QUrl &which);
 
 private:
+    EventIdList getMatchingEvents(const ActivityReportConfigurationDialog::Properties &properties);
+    int         calculateTotalSeconds(const EventIdList &events);
+    const       QString getTimeSpanType();
+
+
     void slotUpdate() override;
+
 
 private:
     ActivityReportConfigurationDialog::Properties m_properties;

@@ -39,7 +39,6 @@ public:
 
     Configuration::DurationFormat durationFormat() const;
     bool detectIdling() const;
-    bool warnUnuploadedTimesheets() const;
     bool requestEventComment() const;
     bool enableCommandInterface() const;
     int numberOfTaskSelectorEntries() const;
@@ -47,8 +46,10 @@ public:
     Qt::ToolButtonStyle toolButtonStyle() const;
 
     Configuration::TimeTrackerFontSize timeTrackerFontSize() const;
-private Q_SLOTS:
-    void slotWarnUnuploadedChanged(bool);
+    const QString & timeTrackerFont() const;
+    const QString & eventWindowFont() const;
+
+// private Q_SLOTS:
 
 private:
     Ui::CharmPreferences m_ui;

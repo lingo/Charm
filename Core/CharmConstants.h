@@ -67,9 +67,10 @@ extern const QString MetaKey_Key_LocalStorageDatabase;
 extern const QString MetaKey_Key_LocalStorageType;
 extern const QString MetaKey_Key_SubscribedTasksOnly;
 extern const QString MetaKey_Key_TimeTrackerFontSize;
+extern const QString MetaKey_Key_TimeTrackerFont;
+extern const QString MetaKey_Key_EventWindowFont;
 extern const QString MetaKey_Key_DurationFormat;
 extern const QString MetaKey_Key_IdleDetection;
-extern const QString MetaKey_Key_WarnUnuploadedTimesheets;
 extern const QString MetaKey_Key_RequestEventComment;
 extern const QString MetaKey_Key_ToolButtonStyle;
 extern const QString MetaKey_Key_ShowStatusBar;
@@ -83,6 +84,10 @@ extern const QString FalseString;
 
 // helper functions to persist meta data:
 template<class T> T strToT(const QString &str);
+template<> inline QString strToT(const QString &str)
+{
+    return str;
+}
 template<> inline int strToT(const QString &str)
 {
     bool ok;
